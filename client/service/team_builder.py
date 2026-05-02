@@ -11,6 +11,8 @@ from util.constants import (
     normalize_tier_name,
 )
 
+CLIENT_ROOT = Path(__file__).resolve().parents[1]
+
 MAX_POSITION_MAPS_PER_TEAM = 40
 RELAXED_POSITION_PENALTY = len(POSITIONS) + 2
 ADC_POSITION = "원딜"
@@ -18,7 +20,7 @@ SUPPORT_POSITION = "서포터"
 
 
 def load_config():
-    path = Path("data/config.json")
+    path = CLIENT_ROOT / "data" / "config.json"
 
     if not path.exists():
         return DEFAULT_TIER_SCORE

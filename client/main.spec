@@ -2,10 +2,10 @@
 
 
 a = Analysis(
-    ['main.py'],
+    ['client/main.py'],
     pathex=[],
     binaries=[],
-    datas=[('styles/dark.qss', 'styles')],
+    datas=[('client/styles/dark.qss', 'styles')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
