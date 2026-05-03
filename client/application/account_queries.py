@@ -1,3 +1,4 @@
+from api_clients.auth_api_client import AuthApiClient
 from api_clients.match_api_client import MatchApiClient
 
 
@@ -17,15 +18,30 @@ def get_match_detail(match_id):
 
 
 def login(username, password):
-    client = MatchApiClient()
+    client = AuthApiClient()
     return client.login(username, password)
 
 
 def bootstrap_admin(username, password):
-    client = MatchApiClient()
+    client = AuthApiClient()
     return client.bootstrap_admin(username, password)
 
 
+def get_auth_setup_status():
+    client = AuthApiClient()
+    return client.get_setup_status()
+
+
 def get_current_user():
-    client = MatchApiClient()
+    client = AuthApiClient()
     return client.get_me()
+
+
+def list_users():
+    client = AuthApiClient()
+    return client.list_users()
+
+
+def create_user(username, password):
+    client = AuthApiClient()
+    return client.create_user(username, password)

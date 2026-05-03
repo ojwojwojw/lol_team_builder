@@ -18,15 +18,18 @@ class LoginDialog(QDialog):
         self.setWindowTitle("서버 로그인")
         self.resize(420, 220)
         self.current_user = None
+        self.needs_bootstrap = False
         self._create_ui()
+        self.refresh_setup_status()
 
     def _create_ui(self):
         layout = QVBoxLayout()
 
         guide = QLabel(
             "FastAPI 서버에 로그인한 뒤 클라이언트를 사용할 수 있습니다.\n"
-            "처음 한 번은 최초 관리자 생성으로 계정을 만들 수 있습니다."
+            "서버에 계정이 아직 없을 때만 최초 관리자 생성을 사용할 수 있습니다."
         )
+        self.guide_label = guide
         guide.setWordWrap(True)
 
         form = QFormLayout()
@@ -58,6 +61,26 @@ class LoginDialog(QDialog):
         self.login_btn.clicked.connect(self.login)
         self.cancel_btn.clicked.connect(self.reject)
         self.password_input.returnPressed.connect(self.login)
+
+    def refresh_setup_status(self):
+        team_app.save_server_base_url(self.server_url_input.text().strip())
+        try:
+            result = team_app.get_auth_setup_status()
+            self.needs_bootstrap = bool(result.get("needs_bootstrap"))
+        except Exception:
+            self.needs_bootstrap = False
+
+        self.bootstrap_btn.setVisible(self.needs_bootstrap)
+        if self.needs_bootstrap:
+            self.guide_label.setText(
+                "FastAPI 서버에 로그인한 뒤 클라이언트를 사용할 수 있습니다.\n"
+                "현재 서버에는 계정이 없어서 최초 관리자 생성을 사용할 수 있습니다."
+            )
+        else:
+            self.guide_label.setText(
+                "FastAPI 서버에 로그인한 뒤 클라이언트를 사용할 수 있습니다.\n"
+                ##"이미 서버 계정이 존재하므로 일반 로그인만 사용하면 됩니다."
+            )
 
     def login(self):
         username, password = self._read_credentials()
@@ -106,6 +129,9 @@ class LoginDialog(QDialog):
         return username, password
 
     def _accept_auth_result(self, result, username):
+        # access_token 은 서버가 서명한 JWT 이다.
+        # 클라이언트는 이 문자열을 해석하지 않고 그대로 저장했다가
+        # 이후 API 요청 헤더에 Bearer 토큰으로 전달만 한다.
         token = (result or {}).get("access_token", "")
         if not token:
             raise RuntimeError("로그인 응답에 access_token 이 없습니다.")

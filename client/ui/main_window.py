@@ -38,7 +38,9 @@ from application.recent_match_views import (
 from application.team_app import team_app
 from domain.constants import ACCOUNT_SEARCH_LIMIT, ANY_POSITION
 from ui.config_dialog import ConfigDialog
+from ui.auth_admin_dialog import AuthAdminDialog
 from ui.couple_group_dialog import CoupleGroupDialog
+from ui.login_dialog import LoginDialog
 from ui.match_detail_dialog import MatchDetailDialog
 from ui.style_loader import load_style
 from ui.team_result_widget import TeamResultWidget
@@ -58,12 +60,15 @@ class MainWindow(QWidget):
         self.selected_account = None
         self.selected_match = None
         self.recent_matches = []
+        self.current_user = None
         self.theme_mode = team_app.load_theme_mode()
         self.match_detail_dialog = MatchDetailDialog(self)
         self.couple_group_dialog = CoupleGroupDialog(self)
+        self.auth_admin_dialog = None
 
         self._create_ui()
         self._connect_signals()
+        self.refresh_auth_status()
         self.apply_theme()
         self.load_dataset_list()
 
@@ -143,7 +148,10 @@ class MainWindow(QWidget):
         self.copy_dataset_btn = QPushButton("데이터셋 복사")
         self.delete_dataset_btn = QPushButton("데이터셋 삭제")
         self.user_table = UserTableWidget()
+        self.auth_status_label = QLabel("로그인: -")
         self.config_btn = QPushButton("설정")
+        self.auth_manage_btn = QPushButton("계정 관리")
+        self.logout_btn = QPushButton("로그아웃")
 
         dataset_btn_row = QHBoxLayout()
         dataset_btn_row.addWidget(self.new_btn)
@@ -155,6 +163,9 @@ class MainWindow(QWidget):
         left.addLayout(dataset_btn_row)
         left.addWidget(QLabel("유저 목록"))
         left.addWidget(self.user_table, 7)
+        left.addWidget(self.auth_status_label)
+        left.addWidget(self.auth_manage_btn)
+        left.addWidget(self.logout_btn)
         left.addWidget(self.config_btn)
 
         return left
@@ -313,6 +324,8 @@ class MainWindow(QWidget):
         self.team_result.copy_clicked.connect(self.copy)
         self.team_result.account_clicked.connect(self.open_account_from_team_result)
 
+        self.auth_manage_btn.clicked.connect(self.open_auth_admin_dialog)
+        self.logout_btn.clicked.connect(self.logout)
         self.config_btn.clicked.connect(self.open_config_dialog)
         self.account_search_btn.clicked.connect(self.search_accounts)
         self.account_keyword_input.returnPressed.connect(self.search_accounts)
@@ -330,6 +343,51 @@ class MainWindow(QWidget):
         self.recent_summary_label.setStyleSheet(get_recent_summary_style(self.theme_mode))
         self.user_table.apply_theme(self.theme_mode)
         self.team_result.apply_theme(self.theme_mode)
+
+    def refresh_auth_status(self):
+        try:
+            self.current_user = team_app.get_current_user()
+        except Exception:
+            self.current_user = None
+
+        if not self.current_user:
+            self.auth_status_label.setText("로그인: -")
+            self.auth_manage_btn.setVisible(False)
+            return
+
+        is_admin = bool(self.current_user.get("is_admin"))
+        role_text = "관리자" if is_admin else "일반"
+        self.auth_status_label.setText(
+            f"로그인: {self.current_user.get('username', '-')} ({role_text})"
+        )
+        self.auth_manage_btn.setVisible(is_admin)
+
+    def open_auth_admin_dialog(self):
+        if not self.current_user or not self.current_user.get("is_admin"):
+            QMessageBox.warning(self, "권한 없음", "관리자 계정으로 로그인해야 합니다.")
+            return
+
+        self.auth_admin_dialog = AuthAdminDialog(self)
+        self.auth_admin_dialog.exec_()
+
+    def logout(self):
+        answer = QMessageBox.question(
+            self,
+            "로그아웃",
+            "현재 계정에서 로그아웃하시겠습니까?",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No,
+        )
+        if answer != QMessageBox.Yes:
+            return
+
+        team_app.clear_auth_token()
+        login_dialog = LoginDialog(self)
+        if login_dialog.exec_() != LoginDialog.Accepted:
+            self.close()
+            return
+
+        self.refresh_auth_status()
 
     def _normalize_positions(self, users):
         normalized = []

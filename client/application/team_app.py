@@ -1,8 +1,11 @@
 from application.account_queries import (
     bootstrap_admin,
+    create_user,
+    get_auth_setup_status,
     get_current_user,
     get_match_detail,
     get_recent_matches_by_riot_id,
+    list_users,
     login,
     search_accounts,
 )
@@ -94,7 +97,10 @@ class TeamApp:
     search_accounts = staticmethod(search_accounts)
     login = staticmethod(login)
     bootstrap_admin = staticmethod(bootstrap_admin)
+    get_auth_setup_status = staticmethod(get_auth_setup_status)
     get_current_user = staticmethod(get_current_user)
+    list_users = staticmethod(list_users)
+    create_user = staticmethod(create_user)
     get_recent_matches_by_riot_id = staticmethod(get_recent_matches_by_riot_id)
     get_match_detail = staticmethod(get_match_detail)
     summarize_recent_matches = staticmethod(summarize_recent_matches)

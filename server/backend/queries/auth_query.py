@@ -4,6 +4,7 @@ from ..database import get_connection
 
 
 def count_users() -> int:
+    # 최초 관리자 생성 가능 여부를 판단할 때 사용한다.
     conn = get_connection()
     try:
         cursor = conn.execute("SELECT COUNT(*) FROM app_user")
@@ -14,6 +15,7 @@ def count_users() -> int:
 
 
 def get_user_by_username(username: str) -> dict | None:
+    # 로그인 단계에서 아이디로 app_user 를 조회한다.
     conn = get_connection()
     conn.row_factory = _row_factory
     try:
@@ -31,6 +33,7 @@ def get_user_by_username(username: str) -> dict | None:
 
 
 def get_user_by_id(user_id: int) -> dict | None:
+    # JWT payload.sub 를 실제 DB 사용자로 다시 매핑할 때 사용한다.
     conn = get_connection()
     conn.row_factory = _row_factory
     try:
@@ -53,6 +56,7 @@ def create_user(
     password_salt: str,
     is_admin: bool = False,
 ) -> dict:
+    # 계정 생성은 이 함수 하나로 모아서 app_user 쓰기 경로를 단순화한다.
     conn = get_connection()
     try:
         cursor = conn.execute(
@@ -71,6 +75,7 @@ def create_user(
 
 
 def list_users() -> list[dict]:
+    # 관리자 UI 에서 app_user 목록을 표로 보여줄 때 사용한다.
     conn = get_connection()
     conn.row_factory = _row_factory
     try:
