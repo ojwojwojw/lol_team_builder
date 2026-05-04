@@ -1,19 +1,6 @@
 from __future__ import annotations
 
 import os
-from pathlib import Path
-
-
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_DB_PATH = PROJECT_ROOT / "riot_matches.db"
-
-
-def get_db_path() -> Path:
-    raw_path = os.getenv("TEAM_BUILDER_DB_PATH", "").strip()
-    if not raw_path:
-        return DEFAULT_DB_PATH
-
-    return Path(raw_path).expanduser().resolve()
 
 
 def get_jwt_secret() -> str | None:

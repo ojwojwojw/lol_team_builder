@@ -1,0 +1,6 @@
+{
+  "projects": {
+    "default": "demo-team-builder-local",
+    "local": "demo-team-builder-local"
+  }
+}
