@@ -1,5 +1,6 @@
 from ..stores.match_store import (
     get_existing_match_ids,
+    rebuild_participant_indexes,
     store_match_bundle,
 )
 from ..stores.riot_account_store import (
@@ -214,11 +215,13 @@ class RiotService:
 
             stored_match_ids = []
             skipped_existing_match_ids = []
+            rebuilt_existing_match_ids = []
             failed_matches = []
 
             for match_id in requested_match_ids:
                 if match_id in existing_match_ids:
                     skipped_existing_match_ids.append(match_id)
+                    rebuilt_existing_match_ids.extend(rebuild_participant_indexes([match_id]))
                     continue
 
                 match_result = fetch_match_detail(match_id, api_key)
@@ -244,6 +247,7 @@ class RiotService:
                 "existing_match_ids": sorted(existing_match_ids),
                 "pending_match_ids": pending_match_ids,
                 "skipped_existing_match_ids": skipped_existing_match_ids,
+                "rebuilt_existing_match_ids": rebuilt_existing_match_ids,
                 "riot_detail_request_count": len(pending_match_ids),
                 "stored_match_ids": stored_match_ids,
                 "stored_count": len(stored_match_ids),

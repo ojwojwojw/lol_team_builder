@@ -73,6 +73,48 @@ def store_match_bundle(match_id: str, match_data: dict) -> None:
     batch.commit()
 
 
+def rebuild_participant_indexes(match_ids: list[str]) -> list[str]:
+    """이미 저장된 matches 문서에서 참가자 인덱스를 다시 만든다."""
+    normalized = [match_id.strip() for match_id in match_ids if (match_id or "").strip()]
+    if not normalized:
+        return []
+
+    rebuilt_match_ids = []
+    for match_id in normalized:
+        snapshot = _match_collection().document(match_id).get()
+        if not snapshot.exists:
+            continue
+
+        data = snapshot.to_dict() or {}
+        participants = data.get("participants", []) or []
+        if not participants:
+            continue
+
+        match_payload = {
+            "game_mode": data.get("game_mode"),
+            "queue_id": data.get("queue_id"),
+            "game_creation": data.get("game_creation"),
+            "game_start_timestamp": data.get("game_start_timestamp"),
+            "game_duration": data.get("game_duration"),
+        }
+
+        batch = get_client().batch()
+        has_index_target = False
+        for participant in participants:
+            participant_payload = _build_participant_index_payload(match_id, participant, match_payload)
+            doc_id = f"{match_id}_{participant.get('puuid', '')}"
+            batch.set(_participant_index_collection().document(doc_id), participant_payload)
+            has_index_target = True
+
+        if not has_index_target:
+            continue
+
+        batch.commit()
+        rebuilt_match_ids.append(match_id)
+
+    return rebuilt_match_ids
+
+
 def get_recent_matches_by_puuid(puuid: str, limit: int) -> list[dict]:
     """한 사용자의 최근 경기 참가 이력을 PUUID 기준으로 가져온다."""
     docs = _participant_index_collection().where("puuid", "==", puuid).stream()
