@@ -16,7 +16,7 @@ CLIENT_ROOT = Path(__file__).resolve().parents[1]
 
 # 한 팀에서 포지션 배치를 전부 탐색하면 경우의 수가 빠르게 커지므로,
 # 우선순위가 좋은 배치만 상위 N개로 잘라서 조합 탐색량을 줄인다.
-MAX_POSITION_MAPS_PER_TEAM = 24
+MAX_POSITION_MAPS_PER_TEAM = 80
 RELAXED_POSITION_PENALTY = len(POSITIONS) + 2
 ADC_POSITION = POSITIONS[3]
 SUPPORT_POSITION = POSITIONS[4]
@@ -616,6 +616,7 @@ def _build_candidate(
 
     candidate_key = (
         candidate["warning_count"],
+        candidate["position_penalty"],
         candidate["adc_line_diff"],
         candidate["max_line_diff"],
         candidate["mismatch_severity"],
