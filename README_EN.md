@@ -141,7 +141,7 @@ The main team-building workflow happens entirely inside the desktop client.
 
 ## System Architecture
 
-![Architecture Overview](docs/images/architecture-overview.png)
+![Architecture Overview](docs/images/architecture-overview-en.png)
 
 ### 1. Main Desktop Client
 - This is the main application directly launched by users.
