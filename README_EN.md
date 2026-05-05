@@ -10,7 +10,7 @@ The backend does not replace the main logic. Instead, it provides supporting dat
 
 This project is **not a public website product**. It is a **PyQt5 desktop application backed by a small cloud API**.
 
-![Architecture Overview](docs/images/architecture-overview-en.svg)
+![Architecture Overview](docs/images/architecture-overview-en.png)
 
 ## What the product does
 

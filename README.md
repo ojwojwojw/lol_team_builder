@@ -9,7 +9,7 @@
 이 프로젝트는 웹사이트가 아니라 **PyQt5 기반 데스크톱 애플리케이션**입니다.  
 따라서 사용자는 로컬 앱을 실행해서 유저를 관리하고 팀을 만들며, 백엔드는 계정/최근 매치 데이터를 조회하는 지원 역할을 맡습니다.
 
-![Architecture Overview](docs/images/architecture-overview.svg)
+![Architecture Overview](docs/images/architecture-overview.png)
 
 ## 프로젝트 목적
 
