@@ -3,331 +3,225 @@
 [Latest Build Download](https://github.com/ojwojwojw/lol_team_builder/releases/latest)  
 [Korean README](README.md)
 
-`LOL Team Builder` is a **desktop-first League of Legends team balancing application** for custom games and in-house matches.
+LOL Team Builder is a desktop-first League of Legends team balancing application designed for small private groups playing custom games and in-house matches.
 
-The core value of the product is a **local team generation algorithm** executed inside a PyQt5 desktop client.  
+## Overview
+
+The core value of the product is a team formation support logic executed locally inside a PyQt5 desktop client.  
 The backend does not replace the main logic. Instead, it provides supporting data such as stored Riot accounts, recent match summaries, and match detail records.
 
-This project is **not a public website product**. It is a **PyQt5 desktop application backed by a small cloud API**.
+This project is not a public website product. It is a PyQt5 desktop application backed by a small cloud API.
 
-I built this project as someone who frequently runs custom games with friends and also acts as the group `admin`. In practice, I manage the flow of loading friend account data from the Riot API into Firestore so team generation can use more consistent player data over time.
+This project is designed for a small private group that regularly runs custom games.
 
-The Riot API key is **never exposed to end users** and is not part of the normal user workflow.  
-It is managed only through backend server environment variables.  
-All Riot API requests are executed by the backend (`FastAPI`) service, and the desktop client does not communicate with the Riot API directly.
-
-For deployment, the intended operating policy is to manage the Riot API key through **server-side environment variables and GCP Secret Manager**.
-User authentication sessions are handled with **JWT-based access tokens** issued by the backend.
-
-![Architecture Overview](docs/images/architecture-overview-en.png)
-
-## What the product does
-
-- Helps small groups create fair custom teams
-- Lets users search stored player accounts
-- Shows recent match summaries and player trends
-- Adds searched players directly into a local team-building dataset
-- Generates balanced teams using local logic
+The admin role is restricted and used only for controlled data ingestion and system operations within this private group. It is not available to general users.
 
 ## Riot API Key Handling
 
-- The Riot API key is never exposed to end users and is not persisted in the client application.
-- It is managed through the server-side `TEAM_BUILDER_RIOT_API_KEY` environment variable, with `RIOT_API_KEY` accepted as a legacy fallback.
-- All Riot API requests are executed exclusively on the backend service.
-- The desktop client never directly communicates with the Riot API.
-- In the deployed environment, the intended secret-management model is server-side environment variables with GCP Secret Manager.
+The Riot API key is never exposed to end users and is not part of the normal user workflow.
 
-For local development, the backend can auto-load these variables from a project-root `.env` file.
+It is managed only through backend server environment variables.
+
+The Riot API key is never entered, stored, or handled within the client application.
+
+All Riot API requests are executed exclusively through the backend (FastAPI) service.  
+The desktop client does not communicate directly with the Riot API.
+
+In deployment, the API key is securely managed through server-side environment variables and GCP Secret Manager.
+
+User authentication sessions are handled with JWT-based access tokens issued by the backend.
+
+## What the Product Does
+
+- Helps small groups create fair custom teams  
+- Lets users search stored player accounts  
+- Shows recent match summaries and recent match information  
+- Adds searched players into a local team-building dataset  
+- Generates reasonably balanced teams for private matches  
+- Supports team organization and personal gameplay review within a private group  
+
+## Operational and Data Handling Approach
+
+- The Riot API key is not exposed to end users and is never persisted in the client application  
+- All Riot API requests are executed only by the backend service  
+- The desktop client does not communicate directly with the Riot API  
+- Only the necessary data is fetched and delivered through authenticated backend APIs  
+
+- Data ingestion using the Riot API is strictly restricted to the admin role and is performed only for accounts belonging to the private group  
+- General users do not have access to any data ingestion or Riot API interaction features  
+
+- Data ingestion is performed in controlled, small batches with reuse of previously fetched data to minimize unnecessary API requests  
+
+- Player-related data such as recent matches, win rate, and KDA are used only as reference inputs for team organization and self-review  
+- These statistics are not used to evaluate, rank, or judge players  
 
 ## Policy Compliance
 
-- This application does not attempt to replicate or replace Riot's official ranking systems such as MMR or ELO.
-- Player-related data such as recent matches, win rate, and KDA are used only as reference inputs for private custom games.
-- The goal is to help small private groups organize fair teams, not to publicly rank, shame, or judge players.
+- This application does not attempt to replicate or replace Riot’s official ranking systems such as Ranked Leagues, MMR, or ELO  
+- It does not provide any public ranking, evaluation, or player judgment features  
+
+- Any internal calculations or scoring mechanisms are used solely for team organization purposes  
+- These calculations are not intended to evaluate or rank players  
+
+- The goal is to help small private groups organize fair teams, not to publicly rank, shame, or judge players  
 
 ## Scope of the Project
 
-- This project is intended only for small private groups and is not a public-facing service.
-- It is a desktop-based utility tool for in-house matches among friends.
+- This project is intended only for a small private group and is not a public-facing service  
+- It is a desktop-based utility tool for in-house matches among friends  
+
+- Access is restricted to invited users with individually assigned login credentials (ID and password)  
+
+- The database collects Riot account and match data only for users within this private group  
+- No data outside the intended group is collected or processed  
+
+- The application does not provide alternative systems for reporting, evaluating, or ranking other players  
 
 ## Data Usage and Rate Limiting
 
-- Riot API data is collected in controlled, small batches with rate-limit awareness.
-- Previously fetched data is stored and reused to reduce unnecessary repeat requests.
+- Riot API data is collected in controlled, small batches with rate-limit awareness  
+- Previously fetched data is stored and reused to reduce unnecessary repeated requests  
+- All data access is limited to documented Riot API endpoints and official developer tools  
 
 ## Disclaimer
 
 This project is not endorsed by or affiliated with Riot Games.
 
-## Why it exists
+It does not use official Riot Games logos or present itself as an approved Riot partner product.
 
-Many small groups running custom games still create teams manually by guessing player strength.  
-This project is designed to make that process more structured and repeatable.
+## Why It Exists
 
-Instead of only comparing rank, the app can also use:
-- preferred roles
-- recent match trends
-- recent win rate
-- recent KDA
-- stored player metadata
+Many small groups running custom games still create teams manually by guessing player strength.
 
-## Product format
+This project is designed to make that process more structured, fair, and repeatable.
 
-This is a **desktop application** built with `PyQt5`.
+Instead of relying only on rank, the application can use:
+
+- preferred roles  
+- recent match information  
+- recent win rate  
+- recent KDA  
+- stored player metadata  
+
+## Product Format
+
+This is a desktop application built with PyQt5.
 
 The cloud backend is used only to:
-- authenticate app users
-- read stored Riot account information
-- read recent match summaries
-- read match detail data
 
-The main team-building workflow happens inside the desktop app.
+- authenticate app users  
+- read stored Riot account information  
+- read recent match summaries  
+- read match detail data  
 
-## Tech stack
+The main team-building workflow happens entirely inside the desktop client.
 
-### Desktop client
-- `Python 3.12`
-- `PyQt5`
-- `QSS` themes
+## Tech Stack
 
-### Core logic
-- `client/domain/team_builder.py`
+### Desktop Client
+- Python 3.12  
+- PyQt5  
+- QSS themes  
+
+### Core Logic
+- client/domain/team_builder.py  
 
 ### Backend
-- `FastAPI`
-- `PyJWT`
-- `google-cloud-firestore`
+- FastAPI  
+- PyJWT  
+- google-cloud-firestore  
 
 ### Infrastructure
-- `Google Cloud Run`
-- `Cloud Firestore`
+- Google Cloud Run  
+- Cloud Firestore  
 
-## Architecture
+## System Architecture
 
 ### 1. Main Desktop Client
-The user-facing application.
-
-Responsibilities:
-- login
-- dataset editing
-- account search
-- recent match browsing
-- team generation
-- result copying
+- This is the main application directly launched by users.
+- It handles local dataset editing, stored account search, recent match lookup, team generation, and result copying.
+- The actual team-balancing logic runs locally inside the desktop client.
 
 ### 2. Team Builder Domain Logic
-The core algorithm layer.
-
-Responsibilities:
-- balancing players
-- combining tier and role information
-- reflecting recent form
-- producing final team output
+- This is the core logic of the project.
+- It calculates team balance using tier, sub-tier, role preference, and recent match form.
 
 ### 3. Cloud Run API
-Supporting backend API.
-
-Responsibilities:
-- user authentication
-- account lookup
-- recent match lookup
-- match detail lookup
+- User authentication
+- Stored Riot account lookup
+- Recent match summary lookup
+- Match detail lookup
 - JWT-based access token issuance and verification
+- Authorization checks for admin-only operations
+
+This backend is a supporting layer for the desktop application.  
+It does not replace the local team-building workflow.
 
 ### 4. Cloud Firestore
-Persistent storage for:
-- app users
-- stored Riot accounts
-- match detail documents
-- participant-based recent match indexes
+- App user accounts
+- Stored Riot account metadata
+- Raw match detail records
+- Participant index data for recent match lookups
 
 ### 5. Riot Data Ingestion
-Admin-side operational flow for:
-- loading Riot account metadata
-- importing recent matches
-- refreshing tier and profile data
-- writing normalized records into Firestore
+- Riot data ingestion is handled only in the admin flow.
+- It is not part of the general user-facing team builder workflow.
+- The admin uses server-configured Riot API environment variables to store recent matches, account metadata, and tier information in Firestore.
+- This operation is designed for a small private group, using controlled batch execution and reuse of existing data to reduce repeated requests.
+- These admin operations are available only to the developer's restricted `admin` account.
 
-## Screen reference
+## Screen Reference
 
-### 1. Riot ingestion console
+### 1. Riot Loader Main Screen
 ![Riot Loader Main](docs/images/riot_loader_1.png)
 
-This is the main admin console showing the current admin session, manual ingestion tools, bulk ingestion tools for stored accounts, and the response panel in one workspace.  
-The left side supports manual Riot ID based ingestion, while the right side handles bulk storage and tier refresh for saved accounts.
-The Riot API key is not exposed on this screen and is managed through server environment variables.
+- This is the admin operations console for authenticated admin sessions, manual ingestion, bulk ingestion from stored accounts, and response monitoring.
+- The left side is used for manual ingestion by Riot ID, while the right side is used for bulk ingestion or tier refresh from stored accounts.
+- The Riot API key is not shown in the UI and is managed only through server-side environment variables.
 
-### 2. Batch scheduler
+### 2. Batch Scheduler Screen
 ![Batch Scheduler](docs/images/liot_loader_2.png)
 
-This screen is used to schedule repeated ingestion in small batches for selected stored accounts.  
-The admin can control recent-match count, batch size, and execution interval for longer-running refresh jobs.
-This scheduler also runs without a client-side API key field and relies on the server's configured environment variable.
+- This screen is used to ingest stored accounts sequentially in small batch units.
+- Admins can adjust recent match count, batch size, and execution interval for longer-running ingestion tasks.
+- This screen also works without any API key input field because ingestion requests rely on server-side environment variables.
 
-### 3. Firestore monitor
+### 3. Firestore Admin Screen
 ![Firestore Admin](docs/images/liot_loader_3.png)
 
-This is the Firestore monitoring screen for checking collection statistics, browsing documents, reviewing raw JSON, and using cleanup tools.  
-It is used for ingestion-result validation and operational cleanup.
-Riot API key handling is separated from this monitor and is managed only through server-side environment variables.
+- This is a Firestore monitoring view for collection statistics, document lists, raw JSON inspection, and deletion tools.
+- It is used to verify ingestion results and clean up older data when needed.
+- Riot API key management is separated from this screen and remains server-side only.
 
-### 4. Main team builder workspace
+### 4. Main Team Builder Workspace
 ![Main Workspace](docs/images/main_1.png)
 
-This is the primary user workspace where dataset editing, player selection, account search, recent-match analysis, and team generation come together.  
-The left side manages the local roster table, while the right side focuses on lookup and analysis.
+- This is the main working screen where dataset editing, user selection, account lookup, recent match analysis, and team generation come together.
+- The left side focuses on the local team dataset, the right side focuses on lookup and analysis, and the top area shows generated team results.
 
-### 5. Team selection rationale popup
+### 5. Combination Rationale Popup
 ![Combination Rationale](docs/images/main_2.png)
 
-This popup explains why a generated team combination was selected.  
-It breaks down factors such as total score gap, lane score difference, preferred-position penalties, and recent-form adjustments.
+- This popup explains why a generated team combination was selected.
+- It shows score differences, lane balance differences, role penalties, and recent-form adjustments.
 
-### 6. Team score formula popup
+### 6. Team Score Formula Popup
 ![Team Score Formula](docs/images/main_3.png)
 
-This popup shows the actual score formula used for each player.  
-It exposes the combination of base score, sub-rank multiplier, tier weight, and recent-form multiplier for validation and review.
+- This popup shows how each player's base score, tier multiplier, role weight, and recent-form multiplier are combined.
+- It helps both users and the admin understand and validate the balancing logic.
 
-### 7. Match detail dialog
+### 7. Match Detail Popup
 ![Match Detail Dialog](docs/images/main_4.png)
 
-This dialog shows participant-level detail for a selected recent match.  
-Users can inspect summoner names, champions, roles, outcomes, KDA, CS, damage, and vision in one place.
+- This popup shows participant-level detail for a selected recent match.
+- Users can review summoner name, champion, role, win/loss, KDA, CS, damage, and vision values in one place.
 
-## Main user flow
+## Reviewer Note
 
-## 1. Login screen
-
-Users enter:
-- server URL
-- username
-- password
-
-The login dialog also supports:
-- clearing saved local session state
-
-## 2. Main workspace
-
-The main screen is split into two large areas.
-
-### Left side
-- dataset list
-- create / copy / delete dataset
-- local user table
-
-### Right side
-- account search
-- full account list loading
-- recent match summary
-- position statistics
-- champion statistics
-- team result area
-
-## 3. Account search and player lookup
-
-Users can:
-- search by Riot game name
-- load all stored accounts
-- select one account
-- inspect recent match summaries
-
-Displayed recent-match information includes:
-- match time
-- champion
-- role / position
-- win or loss
-- K/D/A
-- CS
-- vision score
-- champion damage
-- gold
-
-## 4. Add searched players into the team builder
-
-After selecting an account, the user can add that player directly into the local team-building table.
-
-The app can carry over:
-- Riot ID
-- tier / rank detail
-- recent match count
-- recent win rate
-- recent KDA
-- preferred positions
-
-## 5. Team generation
-
-Typical workflow:
-
-1. choose players
-2. adjust positions or tiers if needed
-3. generate teams
-4. review result
-5. copy result for sharing
-
-The result includes:
-- Team A / Team B composition
-- role fit impact
-- recent form impact
-- warnings and balancing notes
-
-## 6. Match detail view
-
-Users can open a match detail dialog from the recent match list.
-
-This shows participant-level information such as:
-- summoner name
-- champion
-- role
-- win/loss
-- KDA
-- CS
-- damage
-- vision
-
-## Firestore collections
-
-### `app_users`
-Application login accounts
-
-### `riot_accounts`
-Stored Riot account metadata
-
-### `matches`
-Full match detail documents
-
-### `match_participants`
-Participant-based index for recent match lookups
-
-Important:
-- recent match browsing is primarily backed by `match_participants`
-- full match detail is stored in `matches`
-
-## Local app state
-
-The desktop app also stores local configuration such as:
-- server URL
-- theme mode
-- saved login session
-
-Related file:
-- `client/data/config.json`
-
-## Documents
-
-- Korean README: [README.md](README.md)
-- Local environment file: project-root `.env` (gitignored)
-- Local test guide: [local_test_guild.md](local_test_guild.md)
-- GCP deployment guide: [deploy/gcp/DEPLOY_GCP_CLOUD_RUN.md](deploy/gcp/DEPLOY_GCP_CLOUD_RUN.md)
-- Incident report: [patch_notes/INCIDENT_REPORT_2026-05-05_MATCH_LOOKUP.md](patch_notes/INCIDENT_REPORT_2026-05-05_MATCH_LOOKUP.md)
-
-## Reviewer note
-
-For Riot review purposes:
-
-- this product is a **desktop utility app**
-- not a public consumer website
-- the main functionality is executed locally in the client
-- Riot data is used to support player review and team balancing
-- the backend is a supporting data service, not the primary product surface
-- the app is intended only for small private groups running custom games
+- This product is a desktop utility application  
+- It is not a public consumer-facing service  
+- The main functionality is executed locally in the client  
+- Riot data is used only to support team organization and player self-review  
+- The backend is a supporting data service, not the primary product surface  
+- The application is intended only for small private groups running custom games  
