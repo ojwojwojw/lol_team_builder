@@ -1,5 +1,9 @@
 # LOL Team Builder
 
+> **이 프로젝트는 Riot Games의 보증을 받지 않았으며, Riot Games 또는 Riot Games 관련 자산의 제작·운영에 공식적으로 관여하는 누구의 견해나 의견을 대변하지 않습니다.**
+>
+> **Riot Games 및 관련 자산은 Riot Games, Inc.의 상표 또는 등록상표입니다.**
+
 👉 [최신 빌드 버전 다운로드](https://github.com/ojwojwojw/lol_team_builder/releases/latest)  
 🌍 [English README for Riot Review](README_EN.md)
 
