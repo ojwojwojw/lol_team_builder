@@ -10,6 +10,11 @@ The backend does not replace the main logic. Instead, it provides supporting dat
 
 This project is **not a public website product**. It is a **PyQt5 desktop application backed by a small cloud API**.
 
+I built this project as someone who frequently runs custom games with friends and also acts as the group `admin`. In practice, I manage the flow of loading friend account data from the Riot API into Firestore so team generation can use more consistent player data over time.
+
+The Riot API key is **not stored in source code or in the repository**. It is currently kept only in a local environment after issuance and entered only when a request actually needs it.  
+Once the Personal Key workflow is finalized, I plan to move that secret into **GCP-provided secret environment variable management** so the deployed environment can use the key more securely.
+
 ![Architecture Overview](docs/images/architecture-overview-en.png)
 
 ## What the product does
@@ -100,6 +105,57 @@ Persistent storage for:
 - stored Riot accounts
 - match detail documents
 - participant-based recent match indexes
+
+### 5. Riot Data Ingestion
+Admin-side operational flow for:
+- loading Riot account metadata
+- importing recent matches
+- refreshing tier and profile data
+- writing normalized records into Firestore
+
+## Screen reference
+
+### 1. Riot ingestion console
+![Riot Loader Main](docs/images/riot_loader_1.png)
+
+This is the admin console used to look up a Riot ID, inspect recent matches, and write the result into Firestore.  
+It supports both one-off manual ingestion and bulk ingestion for previously stored accounts.
+
+### 2. Batch scheduler
+![Batch Scheduler](docs/images/liot_loader_2.png)
+
+This screen is used to schedule repeated ingestion in small batches.  
+The admin can control recent-match count, batch size, and execution interval for longer-running refresh jobs.
+
+### 3. Firestore monitor
+![Firestore Admin](docs/images/liot_loader_3.png)
+
+This is an operational support screen for checking collection sizes, browsing documents, and verifying raw JSON records.  
+It is also useful for cleanup and ingestion-result validation.
+
+### 4. Main team builder workspace
+![Main Workspace](docs/images/main_1.png)
+
+This is the primary user workspace where dataset editing, player selection, account search, recent-match analysis, and team generation come together.  
+The left side manages the local roster table, while the right side focuses on lookup and analysis.
+
+### 5. Team selection rationale popup
+![Combination Rationale](docs/images/main_2.png)
+
+This popup explains why a generated team combination was selected.  
+It breaks down factors such as total score gap, lane score difference, preferred-position penalties, and recent-form adjustments.
+
+### 6. Team score formula popup
+![Team Score Formula](docs/images/main_3.png)
+
+This popup shows the actual score formula used for each player.  
+It exposes the combination of base score, sub-rank multiplier, tier weight, and recent-form multiplier for validation and review.
+
+### 7. Match detail dialog
+![Match Detail Dialog](docs/images/main_4.png)
+
+This dialog shows participant-level detail for a selected recent match.  
+Users can inspect summoner names, champions, roles, outcomes, KDA, CS, damage, and vision in one place.
 
 ## Main user flow
 
